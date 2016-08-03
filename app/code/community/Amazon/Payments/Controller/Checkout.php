@@ -205,11 +205,18 @@ abstract class Amazon_Payments_Controller_Checkout extends Mage_Checkout_Control
             $orderReferenceDetails = $this->_getApi()->getOrderReferenceDetails($this->getAmazonOrderReferenceId(), Mage::getSingleton('checkout/session')->getAmazonAccessToken());
 
             $address = $orderReferenceDetails->getDestination()->getPhysicalDestination();
-
+            
+            /* Snowdog Rewrite Starts: checked if first name is not empty */
             // Split name into first/last
             $name      = $address->getName();
             $firstName = substr($name, 0, strrpos($name, ' '));
-            $lastName  = substr($name, strlen($firstName) + 1);
+            if (!$firstName) {
+                $firstName = 'Ms/Mr';
+                $lastName = $name;
+            } else {
+                $lastName  = substr($name, strlen($firstName) + 1);
+            }
+            /* Snowdog Rewrite Ends */
 
             // Find Mage state/region ID
             $regionModel = Mage::getModel('directory/region')->loadByCode($address->getStateOrRegion(), $address->getCountryCode());
